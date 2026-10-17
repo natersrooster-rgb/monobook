@@ -15,29 +15,43 @@
         </header>
 
         
-        
-            <h2>Network Identity</h2>
-            <input type="text" id="userInput" placeholder="@handle" value="@anonymous">
+        <section class="meta-controls">
+            <div class="control-group">
+                <h2>Identity</h2>
+                <input type="text" id="userInput" placeholder="@handle" value="@anonymous">
+            </div>
+            <div class="control-group">
+                <h2>Filter #Hashtag</h2>
+                <input type="text" id="filterInput" placeholder="Type tag to isolate...">
+            </div>
         </section>
 
         <!-- Post Creator Box -->
         <section class="feed-input-box">
             <h2>Write to the network...</h2>
-            <textarea id="postInput" placeholder="What are you thinking?"></textarea>
+            <textarea id="postInput" placeholder="What are you thinking? Use #tags..."></textarea>
+            
             <div class="input-actions">
-                <span id="charCount">0 / 280</span>
-                <button id="postBtn">Broadcast</button>
+                <!-- Unique Feature: Self-Destruct Decay Protocol Toggle -->
+                <label class="decay-toggle">
+                    <input type="checkbox" id="decayCheckbox"> 
+                    <span>[!] DECAY PROTOCOL (2 min self-destruct)</span>
+                </label>
+                <div class="action-right">
+                    <span id="charCount">0 / 280</span>
+                    <button id="postBtn">Broadcast</button>
+                </div>
             </div>
         </section>
 
-        <!-- Social Feed -->
+        <!-- Social Feed Section -->
         <section>
             <div class="feed-header">
-                <h2>Live Feed</h2>
-                <button id="clearAllBtn" class="danger-btn">Wipe Feed</button>
+                <h2 id="feedTitle">Live Feed</h2>
+                <button id="clearAllBtn" class="danger-btn">Wipe Node Records</button>
             </div>
             <div id="feed">
-                <!-- JavaScript will inject posts here -->
+                <!-- JavaScript will dynamically inject posts, loops, and comments here -->
             </div>
         </section>
     </div>
