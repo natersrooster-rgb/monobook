@@ -21,7 +21,7 @@ h1 {
     text-transform: uppercase;
     border-bottom: 2px solid #FFFFFF;
     padding-bottom: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 h2 {
@@ -30,6 +30,25 @@ h2 {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
+}
+
+/* Feature: Live Metric Dashboard Grid */
+.stat-grid {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    color: #888888;
+}
+.stat-card {
+    background: #090909;
+    border: 1px dashed #222222;
+    padding: 0.4rem 0.8rem;
+    flex: 1;
+}
+.stat-card span {
+    color: #34C759;
+    font-weight: bold;
 }
 
 /* Meta Configuration Controls */
@@ -163,7 +182,6 @@ button:active {
     animation: broadcastPulse 0.4s ease-out forwards;
 }
 
-/* Structural Decay Animation State */
 .post.decaying-fine { filter: blur(0px); opacity: 0.8; }
 .post.decaying-warn { filter: blur(1.5px); opacity: 0.4; transition: all 1s ease; }
 .post.decaying-critical { filter: blur(4px); opacity: 0.1; transition: all 1s ease; }
@@ -275,6 +293,67 @@ button:active {
 .comment-btn {
     padding: 0.25rem 0.75rem;
     font-size: 0.75rem;
+}
+
+/* Feature UI: Sybil Defense Lock Screen Overlay */
+#firewallLock {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+#firewallLock.hidden-lock {
+    display: none !important;
+}
+
+.lock-box {
+    max-width: 500px;
+    width: 100%;
+    border: 2px solid #FF3B30;
+    padding: 2.5rem;
+    background: #000000;
+    text-align: center;
+}
+
+.lock-box p {
+    color: #888888;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.equation-box {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #FF3B30;
+    margin: 1.5rem 0;
+    letter-spacing: 0.1em;
+}
+
+.lock-box input {
+    background: #000;
+    border: 1px solid #FF3B30;
+    color: #FFF;
+    padding: 0.75rem;
+    width: 100%;
+    text-align: center;
+    font-family: inherit;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    outline: none;
+}
+
+.lock-box button {
+    background: #FF3B30;
+    color: #000;
+    width: 100%;
 }
 
 @keyframes broadcastPulse {
