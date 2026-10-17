@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Collect UI Nodes securely
     const postBtn = document.getElementById('postBtn');
     const postInput = document.getElementById('postInput');
     const userInput = document.getElementById('userInput');
@@ -9,16 +10,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const feed = document.getElementById('feed');
     const feedTitle = document.getElementById('feedTitle');
 
+    // Stats UI Nodes
+    const statHandle = document.getElementById('statHandle');
+    const statLikes = document.getElementById('statLikes');
+    const statFollowers = document.getElementById('statFollowers');
+
+    // Firewall UI Nodes
+    const firewallLock = document.getElementById('firewallLock');
+    const captchaQuestion = document.getElementById('captchaQuestion');
+    const captchaAnswer = document.getElementById('captchaAnswer');
+    const verifyHumanBtn = document.getElementById('verifyHumanBtn');
+
     const MAX_CHARS = 280;
+    
+    // Security tracking arrays
+    let lastBroadcastTimes = []; 
+    let activeCaptchaTarget = 0;
 
     // Load initial states from LocalStorage Architecture
     let savedPosts = JSON.parse(localStorage.getItem('monoNetworkPosts')) || [];
     let followedUsers = JSON.parse(localStorage.getItem('monoNetworkFollows')) || [];
 
-    // Initialize Global Lifespan Loop for the unique Volatile Decay Feature
+    // Initialize global looping threads
     setInterval(processNetworkDecay, 1000);
 
+    // Initial Screen Compilation
     renderAllPosts();
+    updateLiveDashboard();
 
     // Track Character Capacity Limits
     postInput.addEventListener('input', () => {
@@ -27,6 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         charCount.style.color = len > MAX_CHARS ? '#FF3B30' : '#666666';
         postBtn.disabled = len > MAX_CHARS;
         postBtn.style.opacity = len > MAX_CHARS ? '0.5' : '1';
+    });
+
+    // Handle profile tag dynamic display updates
+    userInput.addEventListener('input', () => {
+        updateLiveDashboard();
     });
 
     // Real-Time Hashtag Isolation Filtering Engine
@@ -41,6 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (text === '' || text.length > MAX_CHARS) return;
         if (!user.startsWith('@')) user = '@' + user;
+
+        // --- UNIQUE FEATURE: SYBIL DETECTION LOGIC ---
+        const nowMs = Date.now();
+        lastBroadcastTimes = lastBroadcastTimes.filter(t => nowMs - t < 10000); // Track last 10 seconds
+        lastBroadcastTimes.push(nowMs);
+
+        if (lastBroadcastTimes.length > 3) { // Trigger firewall lock if more than 3 posts in 10s
+            triggerFirewallLock();
+            return;
+        }
 
         const now = new Date();
         const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' // ' + now.toLocaleDateString();
@@ -65,11 +98,34 @@ document.addEventListener('DOMContentLoaded', () => {
         savedPosts.unshift(newPost);
         updateStorage();
         renderAllPosts();
+        updateLiveDashboard();
 
-        // Reset inputs
+        // Reset inputs cleanly
         postInput.value = '';
         decayCheckbox.checked = false;
         charCount.textContent = `0 / ${MAX_CHARS}`;
+    });
+
+    // Sybil Firewall Defuse Operations
+    function triggerFirewallLock() {
+        const valA = Math.floor(Math.random() * 12) + 5;
+        const valB = Math.floor(Math.random() * 12) + 2;
+        activeCaptchaTarget = valA * valB;
+
+        captchaQuestion.textContent = `${valA} * ${valB} = ?`;
+        captchaAnswer.value = '';
+        firewallLock.classList.remove('hidden-lock');
+    }
+
+    verifyHumanBtn.addEventListener('click', () => {
+        const ans = parseInt(captchaAnswer.value.trim(), 10);
+        if (ans === activeCaptchaTarget) {
+            lastBroadcastTimes = []; // Reset firewall arrays
+            firewallLock.classList.add('hidden-lock');
+        } else {
+            // Bad answer penalties: shuffle layout question instantly
+            triggerFirewallLock();
+        }
     });
 
     // Delegate Event Processing (Likes, Deletes, Follows, & Comment Generation)
@@ -83,12 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
             targetPost.likes++;
             updateStorage();
             e.target.textContent = `[+] LIKE (${targetPost.likes})`;
+            updateLiveDashboard();
         } 
         
         else if (e.target.classList.contains('delete-action')) {
             savedPosts = savedPosts.filter(p => p.id !== postId);
             updateStorage();
             renderAllPosts();
+            updateLiveDashboard();
         } 
         
         else if (e.target.classList.contains('follow-action') && targetPost) {
@@ -100,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             localStorage.setItem('monoNetworkFollows', JSON.stringify(followedUsers));
             renderAllPosts();
+            updateLiveDashboard();
         } 
         
         else if (e.target.classList.contains('comment-btn') && targetPost) {
@@ -114,8 +173,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: commentText
                 });
                 updateStorage();
+                commentInput.value = '';
                 renderAllPosts();
             }
+        }
+    });
+
+    // Wipe Total History Engine
+    clearAllBtn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to wipe all records from the current node network?")) {
+            savedPosts = [];
+            followedUsers = [];
+            localStorage.removeItem('monoNetworkFollows');
+            updateStorage();
+            renderAllPosts();
+            updateLiveDashboard();
         }
     });
 
@@ -136,9 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (changed) {
             updateStorage();
+            updateLiveDashboard();
         }
         
-        // Dynamically alter layout visual blur states without fully triggering screen rewrites
+        // Visual element transitions mapped dynamically without triggering full list rebuilds
         savedPosts.forEach(post => {
             if (post.isVolatile) {
                 const el = document.getElementById(post.id);
@@ -154,77 +227,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Dynamic Live Dashboard Metrics Processor
+    function updateLiveDashboard() {
+        let activeUser = userInput.value.trim();
+        if (!activeUser.startsWith('@')) activeUser = '@' + activeUser;
+
+        statHandle.textContent = activeUser;
+
+        // Calculate cumulative likes earned across the network by this handle
+        const netLikes = savedPosts
+            .filter(p => p.user.toLowerCase() === activeUser.toLowerCase())
+            .reduce((total, p) => total + p.likes, 0);
+        statLikes.textContent = netLikes;
+
+        // Update total profiles user currently monitors
+        statFollowers.textContent = followedUsers.length;
+    }
+
     function renderAllPosts() {
         const filterTag = filterInput.value.trim().toLowerCase();
         feedTitle.textContent = filterTag ? `Isolating tag: ${filterTag}` : 'Live Feed';
 
         feed.innerHTML = '';
         
-        // Filter content conditionally based on user text constraints
         const targetedDisplayPosts = savedPosts.filter(post => {
             if (!filterTag) return true;
             return post.tags.some(t => t.includes(filterTag));
         });
 
         if (targetedDisplayPosts.length === 0) {
-            feed.innerHTML = '<div style="color: #444; font-size: 0.9rem;">No matching broadcasts found.</div>';
+            feed.innerHTML = '<div style="color: #444; font-size: 0.9rem; padding: 1rem 0;">No matching broadcasts found.</div>';
             return;
         }
         
         targetedDisplayPosts.forEach(post => {
             const isFollowing = followedUsers.includes(post.user);
             const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
-            const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
+const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
+const postElement = document.createElement('div');
+postElement.classList.add('post');
+postElement.id = post.id;
+let commentsHtml = '';
+post.comments.forEach(c => {
+commentsHtml += <div class="comment-item"> <span class="comment-user">${escapeHtml(c.user)}:</span> <span class="comment-text">${escapeHtml(c.text)}</span> </div>;
+});
+// Highlight hashtags into active color elements safely
+const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
+postElement.innerHTML = `
 
-            const postElement = document.createElement('div');
-            postElement.classList.add('post');
-            postElement.id = post.id;
-            
-            // Build comments HTML block layout inside rendering engine loop
-            let commentsHtml = '';
-            post.comments.forEach(c => {
-                commentsHtml += `
-                    <div class="comment-item">
-                        <span class="comment-user">${escapeHtml(c.user)}:</span>
-                        <span class="comment-text">${escapeHtml(c.text)}</span>
-                    </div>
-                `;
-            });
 
-            // Format body content parsing to visually separate standard items from dynamic hash links
-            const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '<span class="hashtag">\$1</span>');
+${escapeHtml(post.user)}
+${followText}
 
-            postElement.innerHTML = `
-                <div class="post-meta">
-                    <div class="user-badge-wrapper">
-                        <span class="post-user">${escapeHtml(post.user)}</span>
-                        <button class="${followClass}" data-id="${post.id}">${followText}</button>
-                    </div>
-                    <span class="post-time">${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}</span>
-                </div>
-                <div class="post-content">${highlightedText}</div>
-                <div class="post-actions">
-                    <button class="action-link like-action" data-id="${post.id}">[+] Like (${post.likes})</button>
-                    <button class="action-link delete-action" data-id="${post.id}">[-] Delete</button>
-                </div>
-                
-                <div class="comments-section">
-                    <div class="comment-list">${commentsHtml}</div>
-                    <div class="comment-input-row">
-                        <input type="text" id="c_input_${post.id}" placeholder="Write a comment down the line...">
-                        <button class="button comment-btn" data-id="${post.id}">Reply</button>
-                    </div>
-                </div>
-            `;
-            feed.appendChild(postElement);
-        });
-    }
+${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}
 
-    function updateStorage() {
-        localStorage.setItem('monoNetworkPosts', JSON.stringify(savedPosts));
-    }
+${highlightedText}
 
-    function escapeHtml(str) {
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
+[+] Like (${post.likes})
+[-] Delete
+${commentsHtml}
+
+
+Reply
+
+
+`;
+feed.appendChild(postElement);
+});
+}
+function updateStorage() {
+localStorage.setItem('monoNetworkPosts', JSON.stringify(savedPosts));
+}
+function escapeHtml(str) {
+return str.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'");
+}
 });
