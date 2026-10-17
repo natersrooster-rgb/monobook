@@ -15,23 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const statLikes = document.getElementById('statLikes');
     const statFollowers = document.getElementById('statFollowers');
 
-    // Firewall UI Nodes
-    const firewallLock = document.getElementById('firewallLock');
-    const captchaQuestion = document.getElementById('captchaQuestion');
-    const captchaAnswer = document.getElementById('captchaAnswer');
-    const verifyHumanBtn = document.getElementById('verifyHumanBtn');
-
     const MAX_CHARS = 280;
-    
-    // Security tracking arrays
-    let lastBroadcastTimes = []; 
-    let activeCaptchaTarget = 0;
 
     // Load initial states from LocalStorage Architecture
     let savedPosts = JSON.parse(localStorage.getItem('monoNetworkPosts')) || [];
     let followedUsers = JSON.parse(localStorage.getItem('monoNetworkFollows')) || [];
 
-    // Initialize global looping threads
+    // Initialize global looping threads for Volatile Decay
     setInterval(processNetworkDecay, 1000);
 
     // Initial Screen Compilation
@@ -65,16 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (text === '' || text.length > MAX_CHARS) return;
         if (!user.startsWith('@')) user = '@' + user;
 
-        // --- UNIQUE FEATURE: SYBIL DETECTION LOGIC ---
-        const nowMs = Date.now();
-        lastBroadcastTimes = lastBroadcastTimes.filter(t => nowMs - t < 10000); // Track last 10 seconds
-        lastBroadcastTimes.push(nowMs);
-
-        if (lastBroadcastTimes.length > 3) { // Trigger firewall lock if more than 3 posts in 10s
-            triggerFirewallLock();
-            return;
-        }
-
         const now = new Date();
         const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' // ' + now.toLocaleDateString();
         
@@ -104,28 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         postInput.value = '';
         decayCheckbox.checked = false;
         charCount.textContent = `0 / ${MAX_CHARS}`;
-    });
-
-    // Sybil Firewall Defuse Operations
-    function triggerFirewallLock() {
-        const valA = Math.floor(Math.random() * 12) + 5;
-        const valB = Math.floor(Math.random() * 12) + 2;
-        activeCaptchaTarget = valA * valB;
-
-        captchaQuestion.textContent = `${valA} * ${valB} = ?`;
-        captchaAnswer.value = '';
-        firewallLock.classList.remove('hidden-lock');
-    }
-
-    verifyHumanBtn.addEventListener('click', () => {
-        const ans = parseInt(captchaAnswer.value.trim(), 10);
-        if (ans === activeCaptchaTarget) {
-            lastBroadcastTimes = []; // Reset firewall arrays
-            firewallLock.classList.add('hidden-lock');
-        } else {
-            // Bad answer penalties: shuffle layout question instantly
-            triggerFirewallLock();
-        }
     });
 
     // Delegate Event Processing (Likes, Deletes, Follows, & Comment Generation)
@@ -263,27 +221,36 @@ document.addEventListener('DOMContentLoaded', () => {
         targetedDisplayPosts.forEach(post => {
             const isFollowing = followedUsers.includes(post.user);
             const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
-const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
-const postElement = document.createElement('div');
-postElement.classList.add('post');
-postElement.id = post.id;
-let commentsHtml = '';
-post.comments.forEach(c => {
-commentsHtml += <div class="comment-item"> <span class="comment-user">${escapeHtml(c.user)}:</span> <span class="comment-text">${escapeHtml(c.text)}</span> </div>;
-});
-// Highlight hashtags into active color elements safely
-const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
-postElement.innerHTML = `
+            const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
 
+            const postElement = document.createElement('div');
+            postElement.classList.add('post');
+            postElement.id = post.id;
+            
+            let commentsHtml = '';
+            post.comments.forEach(c => {
+                commentsHtml += `
+                    <div class="comment-item">
+                        <span class="comment-user">${escapeHtml(c.user)}:</span>
+                        <span class="comment-text">${escapeHtml(c.text)}</span>
+                    </div>
+                `;
+            });
 
-${escapeHtml(post.user)}
-${followText}
+            // Highlight hashtags into active color elements safely
+            const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '<span class="hashtag">\$1</span>');
 
-${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}
-
-${highlightedText}
-
-[+] Like (${post.likes})
+            postElement.innerHTML = `
+                <div class="post-meta">
+                    <div class="user-badge-wrapper">
+                        <span class="post-user">${escapeHtml(post.user)}</span>
+                        <button class="${followClass}" data-id="${post.id}">${followText}</button>
+                    </div>
+                    <span class="post-time">${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}</span>
+                </div>
+                <div class="post-content">${highlightedText}</div>
+                <div class="post-actions">
+                    <button class="action-link like-action" data-id="${post.id}">[+] Like (${post.likes})</button>
 [-] Delete
 ${commentsHtml}
 
