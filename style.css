@@ -25,37 +25,39 @@ h1 {
 }
 
 h2 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-/* Layout Elements */
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.identity-box {
+/* Meta Configuration Controls */
+.meta-controls {
+    display: flex;
+    gap: 2rem;
     margin-bottom: 2rem;
 }
 
-#userInput {
+.control-group {
+    flex: 1;
+}
+
+input[type="text"] {
     background: #000000;
     border: 1px solid #333333;
     color: #FFFFFF;
     font-family: inherit;
     padding: 0.5rem 1rem;
     outline: none;
-    width: 200px;
+    width: 100%;
 }
 
-#userInput:focus {
+input[type="text"]:focus {
     border-color: #FFFFFF;
 }
 
+/* Post Input Layout */
 .feed-input-box {
     margin-bottom: 3rem;
 }
@@ -82,6 +84,27 @@ textarea:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.decay-toggle {
+    font-size: 0.8rem;
+    color: #FF9500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.decay-toggle input {
+    accent-color: #FF9500;
+}
+
+.action-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 #charCount {
@@ -89,6 +112,7 @@ textarea:focus {
     color: #666666;
 }
 
+/* Feed Headers */
 .feed-header {
     display: flex;
     justify-content: space-between;
@@ -132,12 +156,17 @@ button:active {
     color: #000000;
 }
 
-/* Post Styling */
+/* Post Node Containers */
 .post {
     border-bottom: 1px solid #222222;
-    padding: 1.5rem 0;
+    padding: 2rem 0;
     animation: broadcastPulse 0.4s ease-out forwards;
 }
+
+/* Structural Decay Animation State */
+.post.decaying-fine { filter: blur(0px); opacity: 0.8; }
+.post.decaying-warn { filter: blur(1.5px); opacity: 0.4; transition: all 1s ease; }
+.post.decaying-critical { filter: blur(4px); opacity: 0.1; transition: all 1s ease; }
 
 .post-meta {
     display: flex;
@@ -147,9 +176,20 @@ button:active {
     margin-bottom: 0.5rem;
 }
 
+.user-badge-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
 .post-user {
     color: #FFFFFF;
     font-weight: 700;
+}
+
+.hashtag {
+    color: #007AFF;
+    font-weight: bold;
 }
 
 .post-content {
@@ -162,6 +202,7 @@ button:active {
 .post-actions {
     display: flex;
     gap: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .action-link {
@@ -179,20 +220,64 @@ button:active {
     color: #FFFFFF;
 }
 
+.action-link.active-follow {
+    color: #34C759;
+}
+
 .action-link.delete-action:hover {
     color: #FF3B30;
 }
 
-/* Entry Animation for Broadcasts */
+/* Nested Comment Ecosystem */
+.comments-section {
+    background: #090909;
+    border-left: 2px solid #222222;
+    padding-left: 1rem;
+    margin-top: 1rem;
+}
+
+.comment-list {
+    margin-bottom: 0.75rem;
+}
+
+.comment-item {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px dashed #111111;
+    padding-bottom: 0.25rem;
+}
+
+.comment-user {
+    color: #AAAAAA;
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.comment-text {
+    color: #CCCCCC;
+}
+
+.comment-input-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.comment-input-row input {
+    flex: 1;
+    background: #000000;
+    border: 1px solid #222222;
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.comment-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
 @keyframes broadcastPulse {
-    from {
-        opacity: 0;
-        background-color: #111111;
-        transform: translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        background-color: transparent;
-        transform: translateY(0);
-    }
+    from { opacity: 0; background-color: #111111; transform: translateY(-5px); }
+    to { opacity: 1; background-color: transparent; transform: translateY(0); }
 }
