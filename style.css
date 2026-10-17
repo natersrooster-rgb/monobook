@@ -38,6 +38,24 @@ h2 {
     margin: 0 auto;
 }
 
+.identity-box {
+    margin-bottom: 2rem;
+}
+
+#userInput {
+    background: #000000;
+    border: 1px solid #333333;
+    color: #FFFFFF;
+    font-family: inherit;
+    padding: 0.5rem 1rem;
+    outline: none;
+    width: 200px;
+}
+
+#userInput:focus {
+    border-color: #FFFFFF;
+}
+
 .feed-input-box {
     margin-bottom: 3rem;
 }
@@ -52,11 +70,32 @@ textarea {
     padding: 1rem;
     resize: none;
     outline: none;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.2s ease;
 }
 
 textarea:focus {
     border-color: #FFFFFF;
+}
+
+.input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#charCount {
+    font-size: 0.8rem;
+    color: #666666;
+}
+
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 button {
@@ -69,25 +108,91 @@ button {
     text-transform: uppercase;
     cursor: pointer;
     letter-spacing: 0.05em;
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
 button:hover {
     background: #E5E5E5;
 }
 
-/* Post Styling */
-.post {
-    border-top: 1px solid #222222;
-    padding: 1.5rem 0;
+button:active {
+    transform: scale(0.98);
 }
 
-.post-time {
+.danger-btn {
+    background: transparent;
+    color: #FF3B30;
+    border: 1px solid #FF3B30;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+}
+
+.danger-btn:hover {
+    background: #FF3B30;
+    color: #000000;
+}
+
+/* Post Styling */
+.post {
+    border-bottom: 1px solid #222222;
+    padding: 1.5rem 0;
+    animation: broadcastPulse 0.4s ease-out forwards;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
     font-size: 0.8rem;
     color: #666666;
     margin-bottom: 0.5rem;
 }
 
+.post-user {
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
 .post-content {
     font-size: 1rem;
     color: #DDDDDD;
+    word-break: break-word;
+    margin-bottom: 1rem;
+}
+
+.post-actions {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.action-link {
+    background: none;
+    color: #666666;
+    padding: 0;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: normal;
+    letter-spacing: 0;
+}
+
+.action-link:hover {
+    background: none;
+    color: #FFFFFF;
+}
+
+.action-link.delete-action:hover {
+    color: #FF3B30;
+}
+
+/* Entry Animation for Broadcasts */
+@keyframes broadcastPulse {
+    from {
+        opacity: 0;
+        background-color: #111111;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        background-color: transparent;
+        transform: translateY(0);
+    }
 }
