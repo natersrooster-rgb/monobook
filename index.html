@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheMonoNetwork</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    <title>TheMonoBook</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Sybil Firewall Emergency Lock Overlay -->
+    <div id="firewallLock" class="hidden-lock">
+        <div class="lock-box">
+            <h1 class="glitch-text">⚠️ SECURITY BREACH</h1>
+            <p>Sybil script attack detected on current node network.</p>
+            <p class="challenge-prompt">Decrypt the following sequence sequence to restore broadcast capabilities:</p>
+            <div id="captchaQuestion" class="equation-box"></div>
+            <input type="text" id="captchaAnswer" placeholder="Enter solution...">
+            <button id="verifyHumanBtn">Bypass Firewall</button>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- Header -->
+        <!-- Header Matrix -->
         <header>
-            <h1>monobook</h1>
+            <h1>TheMonoBook</h1>
+            <!-- Feature: Personal Metric Grid -->
+            <div class="stat-grid">
+                <div class="stat-card">Handle: <span id="statHandle">@anonymous</span></div>
+                <div class="stat-card">Total Network Likes: <span id="statLikes">0</span></div>
+                <div class="stat-card">Followers: <span id="statFollowers">0</span></div>
+            </div>
         </header>
 
-        
+        <!-- Configuration Matrix Row -->
         <section class="meta-controls">
             <div class="control-group">
-                <h2>Identity</h2>
+                <h2>Identity Handle</h2>
                 <input type="text" id="userInput" placeholder="@handle" value="@anonymous">
             </div>
             <div class="control-group">
@@ -52,7 +69,7 @@
                 <button id="clearAllBtn" class="danger-btn">Wipe Node Records</button>
             </div>
             <div id="feed">
-                <!-- JavaScript will dynamically inject posts, loops, and comments here -->
+                <!-- JavaScript handles engine injections here -->
             </div>
         </section>
     </div>
