@@ -284,7 +284,7 @@ feed.appendChild(postElement);
 function updateStorage() {
 localStorage.setItem('monoNetworkPosts', JSON.stringify(savedPosts));
 }
-function escapeHtml(str) {
-return str.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'");
-}
-});
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+}); // <-- THIS MUST BE THE ABSOLUTE LAST LINE OF THE FILE
