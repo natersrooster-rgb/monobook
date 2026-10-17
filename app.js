@@ -257,33 +257,35 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Highlight hashtags safely
-Use code with caution.
-const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
-postElement.innerHTML = `
+            const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <span class="post-user">${escapeHtml(post.user)}</span>
+                    <button class="${followClass}" data-id="${post.id}">${followText}</button>
+                </div>
+                <div class="post-timestamp">${post.timestamp}</div>
+                <div class="post-body">${highlightedText}</div>
+                <div class="post-actions">
+                    <button class="action-link like-action" data-id="${post.id}">[+] Like (${post.likes})</button>
+                    <button class="action-link delete-action" data-id="${post.id}">[-] Delete</button>
+                </div>
+                <div class="comments-section">
+                    ${commentsHtml}
+                    <div class="comment-box">
+                        <input type="text" id="c_input_${post.id}" class="comment-input" placeholder="Reply to broadcast...">
+                        <button class="comment-btn" data-id="${post.id}">Reply</button>
+                    </div>
+                </div>
+            `;
+            feed.appendChild(postElement);
+        });
+    }
 
+    function updateStorage() {
+        localStorage.setItem('monoNetworkPosts', JSON.stringify(savedPosts));
+    }
 
-${escapeHtml(post.user)}
-${followText}
-
-${post.timestamp}
-
-${highlightedText}
-
-[+] Like (${post.likes})
-[-] Delete
-${commentsHtml}
-
-
-Reply
-
-
-`;
-feed.appendChild(postElement);
-});
-}
-function updateStorage() {
-localStorage.setItem('monoNetworkPosts', JSON.stringify(savedPosts));
-}
     function escapeHtml(str) {
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
