@@ -1,0 +1,93 @@
+/* Reset & Theme Variables */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.6;
+    padding: 2rem;
+}
+
+/* Typography Scale */
+h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    border-bottom: 2px solid #FFFFFF;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+/* Layout Elements */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.feed-input-box {
+    margin-bottom: 3rem;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    background: #000000;
+    border: 1px solid #333333;
+    color: #FFFFFF;
+    font-family: inherit;
+    padding: 1rem;
+    resize: none;
+    outline: none;
+    margin-bottom: 1rem;
+}
+
+textarea:focus {
+    border-color: #FFFFFF;
+}
+
+button {
+    background: #FFFFFF;
+    color: #000000;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-family: inherit;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+}
+
+button:hover {
+    background: #E5E5E5;
+}
+
+/* Post Styling */
+.post {
+    border-top: 1px solid #222222;
+    padding: 1.5rem 0;
+}
+
+.post-time {
+    font-size: 0.8rem;
+    color: #666666;
+    margin-bottom: 0.5rem;
+}
+
+.post-content {
+    font-size: 1rem;
+    color: #DDDDDD;
+}
