@@ -14,16 +14,28 @@
             <h1>TheMonoNetwork</h1>
         </header>
 
+        
+        
+            <h2>Network Identity</h2>
+            <input type="text" id="userInput" placeholder="@handle" value="@anonymous">
+        </section>
+
         <!-- Post Creator Box -->
         <section class="feed-input-box">
             <h2>Write to the network...</h2>
             <textarea id="postInput" placeholder="What are you thinking?"></textarea>
-            <button id="postBtn">Broadcast</button>
+            <div class="input-actions">
+                <span id="charCount">0 / 280</span>
+                <button id="postBtn">Broadcast</button>
+            </div>
         </section>
 
         <!-- Social Feed -->
         <section>
-            <h2>Live Feed</h2>
+            <div class="feed-header">
+                <h2>Live Feed</h2>
+                <button id="clearAllBtn" class="danger-btn">Wipe Feed</button>
+            </div>
             <div id="feed">
                 <!-- JavaScript will inject posts here -->
             </div>
