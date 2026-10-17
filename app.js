@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterInput = document.getElementById('filterInput');
     const charCount = document.getElementById('charCount');
     const clearAllBtn = document.getElementById('clearAllBtn');
-    const decayCheckbox = document.getElementById('decayCheckbox');
     const feed = document.getElementById('feed');
     const feedTitle = document.getElementById('feedTitle');
 
@@ -68,9 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load initial states from LocalStorage Architecture
     let savedPosts = JSON.parse(localStorage.getItem('monoNetworkPosts')) || [];
     let followedUsers = JSON.parse(localStorage.getItem('monoNetworkFollows')) || [];
-
-    // Initialize global loop for Volatile Decay
-    setInterval(processNetworkDecay, 1000);
 
     // Initial Screen Compilation
     renderAllPosts();
@@ -117,10 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamp: timestamp,
             likes: 0,
             tags: tags,
-            comments: [],
-            isVolatile: decayCheckbox.checked,
-            bornAt: Date.now(),
-            lifespanMs: 120000 // 2 Minutes volatile ticking down window
+            comments: []
         };
 
         savedPosts.unshift(newPost);
@@ -134,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset inputs cleanly
         postInput.value = '';
-        decayCheckbox.checked = false;
         charCount.textContent = `0 / ${MAX_CHARS}`;
     });
 
@@ -212,42 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Unique Decay Tracking Logic Matrix
-    function processNetworkDecay() {
-        let changed = false;
-        const now = Date.now();
-
-        savedPosts = savedPosts.filter(post => {
-            if (!post.isVolatile) return true;
-            const age = now - post.bornAt;
-            if (age >= post.lifespanMs) {
-                changed = true;
-                return false; // Erase from database
-            }
-            return true;
-        });
-
-        if (changed) {
-            updateStorage();
-            updateLiveDashboard();
-        }
-        
-        // Visual element transitions mapped dynamically without triggering full list rebuilds
-        savedPosts.forEach(post => {
-            if (post.isVolatile) {
-                const el = document.getElementById(post.id);
-                if (el) {
-                    const age = now - post.bornAt;
-                    const ratio = age / post.lifespanMs;
-                    el.className = 'post'; // Reset
-                    if (ratio > 0.75) el.classList.add('decaying-critical');
-                    else if (ratio > 0.4) el.classList.add('decaying-warn');
-                    else el.classList.add('decaying-fine');
-                }
-            }
-        });
-    }
-
     // Dynamic Live Dashboard Metrics Processor
     function updateLiveDashboard() {
         let activeUser = userInput.value.trim();
@@ -265,30 +221,43 @@ document.addEventListener('DOMContentLoaded', () => {
         statFollowers.textContent = followedUsers.length;
     }
 
-function renderAllPosts() {
-const filterTag = filterInput.value.trim().toLowerCase();
-feedTitle.textContent = filterTag ? Isolating tag: ${filterTag} : 'Live Feed';
-feed.innerHTML = '';
-const targetedDisplayPosts = savedPosts.filter(post => {
-if (!filterTag) return true;
-return post.tags.some(t => t.includes(filterTag));
-});
-if (targetedDisplayPosts.length === 0) {
-feed.innerHTML = 'No matching broadcasts found.';
-return;
-}
-targetedDisplayPosts.forEach(post => {
-const isFollowing = followedUsers.includes(post.user);
-const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
-const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
-const postElement = document.createElement('div');
-postElement.classList.add('post');
-postElement.id = post.id;
-let commentsHtml = '';
-post.comments.forEach(c => {
-commentsHtml += <div class="comment-item"> <span class="comment-user">${escapeHtml(c.user)}:</span> <span class="comment-text">${escapeHtml(c.text)}</span> </div>;
-});
-// Highlight hashtags safely
+    function renderAllPosts() {
+        const filterTag = filterInput.value.trim().toLowerCase();
+        feedTitle.textContent = filterTag ? `Isolating tag: ${filterTag}` : 'Live Feed';
+
+        feed.innerHTML = '';
+        
+        const targetedDisplayPosts = savedPosts.filter(post => {
+            if (!filterTag) return true;
+            return post.tags.some(t => t.includes(filterTag));
+        });
+
+        if (targetedDisplayPosts.length === 0) {
+            feed.innerHTML = '<div style="color: #444; font-size: 0.9rem; padding: 1rem 0;">No matching broadcasts found.</div>';
+            return;
+        }
+        
+        targetedDisplayPosts.forEach(post => {
+            const isFollowing = followedUsers.includes(post.user);
+            const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
+            const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
+
+            const postElement = document.createElement('div');
+            postElement.classList.add('post');
+            postElement.id = post.id;
+            
+            let commentsHtml = '';
+            post.comments.forEach(c => {
+                commentsHtml += `
+                    <div class="comment-item">
+                        <span class="comment-user">${escapeHtml(c.user)}:</span>
+                        <span class="comment-text">${escapeHtml(c.text)}</span>
+                    </div>
+                `;
+            });
+
+            // Highlight hashtags safely
+Use code with caution.
 const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
 postElement.innerHTML = `
 
@@ -296,7 +265,7 @@ postElement.innerHTML = `
 ${escapeHtml(post.user)}
 ${followText}
 
-${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}
+${post.timestamp}
 
 ${highlightedText}
 
