@@ -1,4 +1,52 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ----------------------------------------------------
+    // UNIQUE FEATURE: Live Terminal Audio Synthesis Matrix
+    // ----------------------------------------------------
+    function playNetworkTone(type, pitchModifier = 1) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            
+            const now = ctx.currentTime;
+
+            if (type === 'broadcast') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } 
+            else if (type === 'like') {
+                osc.type = 'sine';
+                const dynamicFreq = 600 + (pitchModifier * 30); 
+                osc.frequency.setValueAtTime(dynamicFreq, now);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } 
+            else if (type === 'delete') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(40, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        } catch (e) {
+            console.log("Audio system blocked by browser autoplay settings.");
+        }
+    }
+
     // Collect UI Nodes securely
     const postBtn = document.getElementById('postBtn');
     const postInput = document.getElementById('postInput');
@@ -21,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let savedPosts = JSON.parse(localStorage.getItem('monoNetworkPosts')) || [];
     let followedUsers = JSON.parse(localStorage.getItem('monoNetworkFollows')) || [];
 
-    // Initialize global looping threads for Volatile Decay
+    // Initialize global loop for Volatile Decay
     setInterval(processNetworkDecay, 1000);
 
     // Initial Screen Compilation
@@ -37,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postBtn.style.opacity = len > MAX_CHARS ? '0.5' : '1';
     });
 
-    // Handle profile tag dynamic display updates
+    // Handle profile handle updates
     userInput.addEventListener('input', () => {
         updateLiveDashboard();
     });
@@ -58,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = new Date();
         const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' // ' + now.toLocaleDateString();
         
-        // Extrapolate #Hashtags using string matching arrays
+        // Extrapolate #Hashtags
         const words = text.split(/\s+/);
         const tags = words.filter(w => w.startsWith('#')).map(w => w.toLowerCase().replace(/[^a-z0-9#]/g, ''));
 
@@ -77,6 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         savedPosts.unshift(newPost);
         updateStorage();
+        
+        // Play Unique Audio Sweep Chime
+        playNetworkTone('broadcast');
+
         renderAllPosts();
         updateLiveDashboard();
 
@@ -96,6 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('like-action') && targetPost) {
             targetPost.likes++;
             updateStorage();
+            
+            // Play Dynamic Tone (goes up in pitch based on likes)
+            playNetworkTone('like', targetPost.likes);
+
             e.target.textContent = `[+] LIKE (${targetPost.likes})`;
             updateLiveDashboard();
         } 
@@ -103,6 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (e.target.classList.contains('delete-action')) {
             savedPosts = savedPosts.filter(p => p.id !== postId);
             updateStorage();
+            
+            // Play Bass Drop frequency tone
+            playNetworkTone('delete');
+
             renderAllPosts();
             updateLiveDashboard();
         } 
@@ -144,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
             followedUsers = [];
             localStorage.removeItem('monoNetworkFollows');
             updateStorage();
+            
+            playNetworkTone('delete');
+            
             renderAllPosts();
             updateLiveDashboard();
         }
@@ -202,55 +265,42 @@ document.addEventListener('DOMContentLoaded', () => {
         statFollowers.textContent = followedUsers.length;
     }
 
-    function renderAllPosts() {
-        const filterTag = filterInput.value.trim().toLowerCase();
-        feedTitle.textContent = filterTag ? `Isolating tag: ${filterTag}` : 'Live Feed';
+function renderAllPosts() {
+const filterTag = filterInput.value.trim().toLowerCase();
+feedTitle.textContent = filterTag ? Isolating tag: ${filterTag} : 'Live Feed';
+feed.innerHTML = '';
+const targetedDisplayPosts = savedPosts.filter(post => {
+if (!filterTag) return true;
+return post.tags.some(t => t.includes(filterTag));
+});
+if (targetedDisplayPosts.length === 0) {
+feed.innerHTML = 'No matching broadcasts found.';
+return;
+}
+targetedDisplayPosts.forEach(post => {
+const isFollowing = followedUsers.includes(post.user);
+const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
+const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
+const postElement = document.createElement('div');
+postElement.classList.add('post');
+postElement.id = post.id;
+let commentsHtml = '';
+post.comments.forEach(c => {
+commentsHtml += <div class="comment-item"> <span class="comment-user">${escapeHtml(c.user)}:</span> <span class="comment-text">${escapeHtml(c.text)}</span> </div>;
+});
+// Highlight hashtags safely
+const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '$1');
+postElement.innerHTML = `
 
-        feed.innerHTML = '';
-        
-        const targetedDisplayPosts = savedPosts.filter(post => {
-            if (!filterTag) return true;
-            return post.tags.some(t => t.includes(filterTag));
-        });
 
-        if (targetedDisplayPosts.length === 0) {
-            feed.innerHTML = '<div style="color: #444; font-size: 0.9rem; padding: 1rem 0;">No matching broadcasts found.</div>';
-            return;
-        }
-        
-        targetedDisplayPosts.forEach(post => {
-            const isFollowing = followedUsers.includes(post.user);
-            const followText = isFollowing ? '[✓] FOLLOWING' : '[+] FOLLOW';
-            const followClass = isFollowing ? 'action-link follow-action active-follow' : 'action-link follow-action';
+${escapeHtml(post.user)}
+${followText}
 
-            const postElement = document.createElement('div');
-            postElement.classList.add('post');
-            postElement.id = post.id;
-            
-            let commentsHtml = '';
-            post.comments.forEach(c => {
-                commentsHtml += `
-                    <div class="comment-item">
-                        <span class="comment-user">${escapeHtml(c.user)}:</span>
-                        <span class="comment-text">${escapeHtml(c.text)}</span>
-                    </div>
-                `;
-            });
+${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}
 
-            // Highlight hashtags into active color elements safely
-            const highlightedText = escapeHtml(post.text).replace(/(#\w+)/g, '<span class="hashtag">\$1</span>');
+${highlightedText}
 
-            postElement.innerHTML = `
-                <div class="post-meta">
-                    <div class="user-badge-wrapper">
-                        <span class="post-user">${escapeHtml(post.user)}</span>
-                        <button class="${followClass}" data-id="${post.id}">${followText}</button>
-                    </div>
-                    <span class="post-time">${post.timestamp} ${post.isVolatile ? '⚠️ [VOLATILE]' : ''}</span>
-                </div>
-                <div class="post-content">${highlightedText}</div>
-                <div class="post-actions">
-                    <button class="action-link like-action" data-id="${post.id}">[+] Like (${post.likes})</button>
+[+] Like (${post.likes})
 [-] Delete
 ${commentsHtml}
 
